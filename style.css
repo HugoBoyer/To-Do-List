@@ -44,8 +44,32 @@ Todo-option
 .task {
     width: 30%;
     background-color: blue;
-    display: flex;
-    flex-direction: column;
 }
 
+.taskOption {
+    display: flex;
+}
 
+ul {
+    padding-left: 0;
+}
+
+.task-item {
+    display: flex;
+    border-bottom: 1px solid #ccc;
+    justify-content: space-between;
+    align-items: center;
+    padding: 5px 10px;
+}
+/* 
+===============================
+
+Todo-Text
+
+==============================
+*/
+
+.edit {
+    width: 70%;
+     border: 1px solid black;
+}
