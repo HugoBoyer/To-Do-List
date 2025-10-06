@@ -1,0 +1,51 @@
+body {
+
+    display : flex;
+    background-color: green;
+    justify-content: center;
+}
+
+p {
+    margin: 0;
+    padding: 0;
+}
+
+
+/* 
+===============================
+
+Barre en haut
+
+==============================
+*/
+
+
+/* 
+===============================
+
+Todo-container
+
+==============================
+*/
+
+.todo-container {
+    background-color: red;
+    width: 70%;
+}
+
+/* 
+===============================
+
+Todo-option
+
+==============================
+*/
+
+.task {
+    width: 30%;
+    background-color: blue;
+    display: flex;
+    flex-direction: column;
+}
+
+
