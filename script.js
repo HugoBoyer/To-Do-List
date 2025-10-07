@@ -2,31 +2,45 @@ const addbtn = document.getElementById("addBtn")
 const taskList = document.querySelector(".taskList")
 const taskOption = document.querySelector(".taskOption")
 const todoContainer = document.getElementById("todo-container")
+const taskForm = document.getElementById("taskForm")
 let selectedTask = null
 const maDiv = document.createElement("div")
+
 maDiv.classList.add("edit")
 maDiv.setAttribute("contenteditable", "true");  
 
 addbtn.addEventListener("click", () => {
-    const taskText = prompt("Quel est le nom de la tâche ?")
-     if(taskText && taskText.trim() !== "") {
-        addTask(taskText)
+    taskForm.style.display = 
+    taskForm.style.display === "none" ? "block" : none;
+     if(taskForm.style.display === "block") {
+        document.getElementById("taskForm").focus()
      }  
 })
 
+taskForm.addEventListener('submit', (e) => { 
+    e.preventDefault();
+    const taskName = document.getElementById("taskName").value
+    const urgency = document.getElementById("taskUrgency").value
+
+    if(!taskName) return
+    addTask(taskName, urgency)
+    taskForm.reset()
+    taskForm.style.display = "none";
+})
 
 
-
-function addTask(task) {
+function addTask(taskName, urgency) {
     // creer <div>
     const div = document.createElement("div");
     div.classList.add("task-item"); // optionnel pour le style
 
     // creer <li pour l'affichage des tache>
     const li = document.createElement("li");
-    li.textContent = task;
+    li.textContent = taskName;
     li.dataset.content = ""; // stocke le contenu éditable
-    
+    li.dataset.urgency = urgency
+
+
     li.addEventListener("click",() => {
     if(selectedTask) {
         selectedTask.dataset.content = maDiv.innerHTML;
