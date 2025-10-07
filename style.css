@@ -58,9 +58,12 @@ ul {
     display: flex;
     border-bottom: 1px solid #ccc;
     cursor: pointer;
-    justify-content: space-between;
     align-items: center;
     padding: 5px 10px;
+}
+
+.task-item li {
+    list-style: none;
 }
 
 .task-item.selected {
@@ -70,6 +73,8 @@ ul {
 
 .delete {
     cursor: pointer;
+    margin-left: auto;
+    margin-right: 5px;
 }
 /* 
 ===============================
@@ -83,3 +88,17 @@ Todo-Text
     width: 70%;
      border: 1px solid black;
 }
+
+.low, .medium, .high, .unknown {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  display: inline-block;
+  margin-right: 8px;
+  margin-left: 5px;
+}
+
+.low { background: green; }
+.medium { background: orange; }
+.high { background: red; }
+.unknown { background: gray; }

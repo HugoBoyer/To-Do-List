@@ -11,7 +11,7 @@ maDiv.setAttribute("contenteditable", "true");
 
 addbtn.addEventListener("click", () => {
     taskForm.style.display = 
-    taskForm.style.display === "none" ? "block" : none;
+    taskForm.style.display === "none" ? "block" : "none";
      if(taskForm.style.display === "block") {
         document.getElementById("taskForm").focus()
      }  
@@ -37,24 +37,32 @@ function addTask(taskName, urgency) {
     // creer <li pour l'affichage des tache>
     const li = document.createElement("li");
     li.textContent = taskName;
-    li.dataset.content = ""; // stocke le contenu éditable
-    li.dataset.urgency = urgency
-
-
+    li.dataset.content = "";// stocke le contenu éditable
+    
+    //creation du rond d'urgence de tache
+    const spanUrgency = document.createElement("div")
+    spanUrgency.dataset.urgency = urgency
+    const urgencyColors = {
+        "1": "low",
+        "2": "medium",
+        "3": "high"
+    }
+    spanUrgency.classList.add(urgencyColors[urgency] || "unknown");
+    
     li.addEventListener("click",() => {
-    if(selectedTask) {
-        selectedTask.dataset.content = maDiv.innerHTML;
+        if(selectedTask) {
+            selectedTask.dataset.content = maDiv.innerHTML;
        
-    } 
-    selectedTask = li 
-    maDiv.innerHTML = li.dataset.content    
-    maDiv.focus();
-})
+        } 
+        selectedTask = li 
+        maDiv.innerHTML = li.dataset.content    
+        maDiv.focus();
+    })
                        
 
     //creer <div pour supprimer>
-    const deleteDiv = document.createElement("div")
-    deleteDiv.textContent = "X"
+    const deleteDiv = document.createElement("span")
+    deleteDiv.textContent = "✖"
     deleteDiv.classList.add("delete"); // optionnel pour le style
         
     deleteDiv.addEventListener("click", () => {
@@ -62,8 +70,10 @@ function addTask(taskName, urgency) {
     })
 
     taskOption.appendChild(maDiv)
+    div.appendChild(spanUrgency)
     div.appendChild(li)
     div.appendChild(deleteDiv)
+    
     taskList.appendChild(div)
 }
 
