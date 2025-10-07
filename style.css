@@ -1,7 +1,6 @@
 body {
-
+    padding: 20px;
     display : flex;
-    background-color: green;
     justify-content: center;
 }
 
@@ -47,6 +46,7 @@ Todo-option
 }
 
 .taskOption {
+    height: 100vh;
     display: flex;
 }
 
@@ -60,6 +60,11 @@ ul {
     justify-content: space-between;
     align-items: center;
     padding: 5px 10px;
+}
+
+.task-item.selected {
+    background-color: #e0f7fa;
+    border-radius: 5px;
 }
 /* 
 ===============================
