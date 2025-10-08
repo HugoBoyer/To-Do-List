@@ -28,26 +28,22 @@ Todo-container
 */
 
 .todo-container {
-    background-color: red;
+    border: 3px solid blue;
     width: 70%;
 }
 
 /* 
 ===============================
 
-Todo-option
+Barre a gauche
 
 ==============================
 */
 
 .task {
     width: 30%;
-    background-color: blue;
-     overflow: hidden;
-     white-space: nowrap;
-      text-overflow: ellipsis; /* ajoute "..." si le texte est trop long */
+    border: 3px solid rgb(27, 142, 23);
 }
-
 
 
 .taskOption {
@@ -65,14 +61,26 @@ ul {
     cursor: pointer;
     align-items: center;
     padding: 5px 10px;
+
 }
 
 .task-item li {
     list-style: none;
+     overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+     min-width: 0; 
 }
 
+.task-item .low,
+.task-item .medium,
+.task-item .high {
+  flex: 0 0 auto;      /* le rond garde sa taille */
+}
+
+
 .task-item.selected {
-    background-color: #e0f7fa;
+    background-color: #cddddf;
     border-radius: 5px;
 }
 
@@ -80,11 +88,13 @@ ul {
     cursor: pointer;
     margin-left: auto;
     margin-right: 5px;
+    flex: 0 0 auto; /* Garde sa taille */
 }
+
 /* 
 ===============================
 
-Todo-Text
+rond d'urgence de la tâche
 
 ==============================
 */
@@ -111,7 +121,7 @@ Todo-Text
 /* 
 ===============================
 
-Todo-Text
+Modal fenetre form
 
 ==============================
 */
@@ -131,13 +141,17 @@ Todo-Text
     transform: translate(-50%, -50%); /* ✅ Ajuste pour être pile au centre */
 }
 
-.modal input, .modal button {
-    width: 100%;
-    margin-top: 10px;
-    padding: 8px;
-    border: 1px solid #ccc;
-    border-radius: 6px;
+.modal input,
+.modal select,
+.modal button {
+  width: 100%;
+  border: 1px solid #ccc;
+  border-radius: 10px;
+  margin: 10px 0;
+  padding: 10px 12px; /* 👈 padding horizontal uniforme */
+  box-sizing: border-box;
 }
+
 .overlay {
   position: fixed;
   top: 0; left: 0;
@@ -145,3 +159,18 @@ Todo-Text
   background: rgba(0,0,0,0.5);
   z-index: 999;
 }
+
+.deleteModal {
+    cursor: pointer;
+    position: absolute;
+    top: 3px;
+    right: 8px;
+    margin-bottom: 200px;
+} 
+
+/* 
+===============================
+
+
+==============================
+*/
