@@ -5,6 +5,7 @@ const todoContainer = document.getElementById("todo-container")
 const taskForm = document.getElementById("taskForm")
 let selectedTask = null
 const maDiv = document.createElement("div")
+const spanDeleteModal = document.getElementById("deleteModal")
 
 maDiv.classList.add("edit")
 maDiv.setAttribute("contenteditable", "true");  
@@ -15,6 +16,10 @@ addbtn.addEventListener("click", () => {
      if(taskForm.style.display === "block") {
         document.getElementById("taskForm").focus()
      }  
+})
+
+spanDeleteModal.addEventListener("click", () => {
+    taskForm.style.display = "none"
 })
 
 taskForm.addEventListener('submit', (e) => { 
@@ -47,7 +52,7 @@ function addTask(taskName, urgency) {
         "2": "medium",
         "3": "high"
     }
-    spanUrgency.classList.add(urgencyColors[urgency] || "unknown");
+    spanUrgency.classList.add(urgencyColors[urgency]);
     
     li.addEventListener("click",() => {
         if(selectedTask) {

@@ -18,21 +18,22 @@
         <div class="taskOption">
             <div class="task">         
                 <button id="addBtn">➕ Ajouter une tache</button>
-                    <form id="taskForm" style="display: none;">
-                        <input type="text" id="taskName" placeholder="Nom de la tâche" required />
-                        <select id="taskUrgency">
-                        <option value="1">⚪ Faible</option>
-                        <option value="2">🟡 Moyenne</option>
-                        <option value="3">🔴 Urgente</option>
-                        </select>
-                        <button type="submit">Valider</button>
-                    </form>
                 <ul class="taskList">
                     <!-- <li></li> ajouter en JS -->                    
                 </ul>
             </div>
         </div>
-
+        <div id="overlay" class="overlay" style="display: none;"></div>
+        <form class="modal" id="taskForm" style="display: none;">
+            <span id="deleteModal" class="deleteModal">✖</span>
+            <input type="text" id="taskName" placeholder="Nom de la tâche" required />
+            <select id="taskUrgency">
+            <option value="1">⚪ Faible</option>
+            <option value="2">🟡 Moyenne</option>
+            <option value="3">🔴 Urgente</option>
+            </select>
+            <button type="submit">Valider</button>
+        </form>                                         
     </div>
 </body>
 </html>
