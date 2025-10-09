@@ -10,14 +10,6 @@ p {
 }
 
 
-/* 
-===============================
-
-Barre en haut
-
-==============================
-*/
-
 
 /* 
 ===============================
@@ -28,8 +20,9 @@ Todo-container
 */
 
 .todo-container {
-    border: 3px solid blue;
-    width: 70%;
+    border: 1px solid rgb(166, 161, 161);
+    width: 60%;
+    border-radius: 0, 0, 0, 80px ;
 }
 
 /* 
@@ -41,13 +34,16 @@ Barre a gauche
 */
 
 .task {
-    width: 30%;
-    border: 3px solid rgb(27, 142, 23);
+    width: 40%;
+    background-color: rgb(236, 230, 230);
+    -webkit-backdrop-filter: blur(10px);       /* Pour Safari */
+    backdrop-filter: blur(10px); 
+ 
 }
 
 
 .taskOption {
-    height: 100vh;
+    height: 70vh;
     display: flex;
 }
 
@@ -100,9 +96,16 @@ rond d'urgence de la tâche
 */
 
 .edit {
-    width: 70%;
-     border: 1px solid black;
-}
+    width: 100%;
+     padding-left: 80px;
+     padding-top: 70px;
+     padding-right: 80px;
+
+    overflow: hidden;
+      outline: none;   
+      word-wrap: break-word;             /* enlève le contour par défaut du focus */
+    overflow-wrap: break-word;
+    }
 
 .low, .medium, .high, .unknown {
   width: 12px;
