@@ -120,9 +120,15 @@ modeSelector.addEventListener("change", () => {
         
         maDiv.innerHTML = `
       <label><input type="checkbox"> Étape 1</label><br>
-      <label><input type="checkbox"> Étape 2</label><br>
-      <label><input type="checkbox"> Étape 3</label>
     `;
+        maDiv.addEventListener("click", () => {
+            const newCheckbox = document.createElement("label")
+            newCheckbox.innerHTML = `<label><input type="checkbox"> Étape 3</label>` 
+            maDiv.appendChild(newCheckbox)
+            maDiv.appendChild(document.createElement("br"))
+        })
+
+
     }
 
     else if (mode === "kanban") {
