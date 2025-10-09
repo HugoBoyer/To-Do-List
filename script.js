@@ -110,24 +110,31 @@ TEST
 modeSelector.addEventListener("change", () => {
     const mode = modeSelector.value
 
+    if(selectedTask && maDiv.hasAttribute("contenteditable")) {
+        selectedTask.dataset.content = maDiv.innerHTML
+    }
+
+    maDiv.innerHTML = ""
+
     if(mode === "edit") {
         maDiv.setAttribute("contenteditable", "true");  
         maDiv.innerHTML = selectedTask ? selectedTask.dataset.content : "";
     }
 
     else if(mode === "checkbox") {
-        maDiv.removeAttribute("contenteditable", "true");  
-        
-        maDiv.innerHTML = `
-      <label><input type="checkbox"> Étape 1</label><br>
-    `;
-        maDiv.addEventListener("click", () => {
-            const newCheckbox = document.createElement("label")
-            newCheckbox.innerHTML = `<label><input type="checkbox"> Étape 3</label>` 
-            maDiv.appendChild(newCheckbox)
-            maDiv.appendChild(document.createElement("br"))
-        })
+        maDiv.removeAttribute("contenteditable", "true"); 
+         const label = document.createElement("label");
+        const checkbox = document.createElement("input");
+        checkbox.type = "checkbox";
 
+        const span = document.createElement("span");
+        span.textContent = "Nouvelle étape";
+        span.setAttribute("contenteditable", "true");
+
+        label.appendChild(checkbox);
+        label.appendChild(span);
+        maDiv.appendChild(label);
+        maDiv.appendChild(document.createElement("br"));
 
     }
 
@@ -144,3 +151,25 @@ modeSelector.addEventListener("change", () => {
     }
 })
 
+if (!maDiv.hasAttribute("data-checkbox-listener")) {
+  maDiv.setAttribute("data-checkbox-listener", "true");
+
+    maDiv.addEventListener("click", (e) => {
+        const currentMode = modeSelector.value;
+        if(currentMode === "checkbox" && e.target === maDiv) {
+            const label = document.createElement("label") 
+    
+            const checkbox = document.createElement("input")
+            checkbox.type = "checkbox"
+    
+            const editableTextSpan = document.createElement("span")
+            editableTextSpan.textContent = "Nouvelle Etape";
+            editableTextSpan.setAttribute("contenteditable", "true");                    
+            
+            label.appendChild(checkbox)
+            label.appendChild(editableTextSpan)
+            maDiv.appendChild(label)
+            maDiv.appendChild(document.createElement("br"))
+        } 
+    })
+}
