@@ -6,9 +6,12 @@ const taskForm = document.getElementById("taskForm")
 let selectedTask = null
 const maDiv = document.createElement("div")
 const spanDeleteModal = document.getElementById("deleteModal")
+const modeSelector = document.getElementById("modeSelector")
+
 
 maDiv.classList.add("edit")
-maDiv.setAttribute("contenteditable", "true");  
+maDiv.setAttribute("contenteditable", "true");
+
 
 addbtn.addEventListener("click", () => {
     taskForm.style.display = 
@@ -104,5 +107,34 @@ TEST
 
 ==============================
 */
+modeSelector.addEventListener("change", () => {
+    const mode = modeSelector.value
 
+    if(mode === "edit") {
+        maDiv.setAttribute("contenteditable", "true");  
+        maDiv.innerHTML = selectedTask ? selectedTask.dataset.content : "";
+    }
+
+    else if(mode === "checkbox") {
+        maDiv.removeAttribute("contenteditable", "true");  
+        
+        maDiv.innerHTML = `
+      <label><input type="checkbox"> Étape 1</label><br>
+      <label><input type="checkbox"> Étape 2</label><br>
+      <label><input type="checkbox"> Étape 3</label>
+    `;
+    }
+
+    else if (mode === "kanban") {
+    maDiv.removeAttribute("contenteditable");
+
+    maDiv.innerHTML = `
+      <div class="kanban">
+        <div class="column" id="todo">À faire</div>
+        <div class="column" id="doing">En cours</div>
+        <div class="column" id="done">Fait</div>
+      </div>
+    `;
+    }
+})
 
