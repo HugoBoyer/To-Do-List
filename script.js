@@ -65,23 +65,47 @@ function addTask(taskName, urgency) {
         selectedTask = li 
         maDiv.innerHTML = li.dataset.content    
         maDiv.focus();
-    })
-                       
-
-    //creer <div pour supprimer>
+    })        
+    
+    
+    //creer <div pour supprimer> 
     const deleteDiv = document.createElement("span")
-    deleteDiv.textContent = "✖"
+    deleteDiv.textContent = "✖"    
     deleteDiv.classList.add("delete"); // optionnel pour le style
-        
     deleteDiv.addEventListener("click", () => {
         DeleteTask(div, maDiv)
     })
 
-    taskOption.appendChild(maDiv)
+    //creer <div pour editer la tache>
+    const editTache = document.createElement("span")
+    editTache.textContent = "🖊️"
+    editTache.classList.add("modalEdit"); // optionnel pour le style
+    
+    editTache.addEventListener("click", (e) => {
+        //creation de l'input d'édition
+        const inputEdit = document.createElement("input")
+        inputEdit.type = "text"
+        inputEdit.value = li.textContent
+        
+
+        //Remplacer le texte par l'input 
+        li.textContent = ""
+        li.appendChild(inputEdit)
+       inputEdit.focus()
+        
+       inputEdit.addEventListener("keydown", (e) => {
+           if(e.key === "enter"){
+            li.textContent = inputEdit.value.trim() || "Tâche sans nom"
+        }
+       })
+     
+    })
+
+    taskOption.appendChild(maDiv)      
+    div.appendChild(deleteDiv)
+    div.appendChild(editTache)  
     div.appendChild(spanUrgency)
     div.appendChild(li)
-    div.appendChild(deleteDiv)
-    
     taskList.appendChild(div)
 }
 
