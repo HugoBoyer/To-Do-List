@@ -34,11 +34,12 @@ Barre a gauche
 */
 
 .task {
-    width: 40%;
+    width: 100%;
+    max-width: 300px;
     background-color: rgb(236, 230, 230);
     -webkit-backdrop-filter: blur(10px);       /* Pour Safari */
     backdrop-filter: blur(10px); 
- 
+    box-sizing: border-box;   /* important pour inclure padding dans la largeur */
 }
 
 
@@ -57,7 +58,6 @@ ul {
     cursor: pointer;
     align-items: center;
     padding: 5px 10px;
-
 }
 
 .task-item li {
@@ -82,10 +82,11 @@ ul {
 
 .delete {
     cursor: pointer;
-    margin-left: auto;
     margin-right: 5px;
     flex: 0 0 auto; /* Garde sa taille */
 }
+
+
 
 /* 
 ===============================

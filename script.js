@@ -94,7 +94,7 @@ function addTask(taskName, urgency) {
        inputEdit.focus()
         
        inputEdit.addEventListener("keydown", (e) => {
-           if(e.key === "enter"){
+           if(e.key === "Enter"){
             li.textContent = inputEdit.value.trim() || "Tâche sans nom"
         }
        })
