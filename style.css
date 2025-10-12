@@ -21,8 +21,8 @@ Todo-container
 
 .todo-container {
     width: 60%;
-    box-shadow: 0 0 10px rgba(0,0,0,0.3);
-    border-radius: 30px 0 30px 0;
+    box-shadow: 0 0 5px rgba(0,0,0,0.3);
+    border-radius: 10px;
 }
 
 /* 
@@ -36,13 +36,19 @@ Barre a gauche
 .task {
     width: 100%;
     max-width: 300px;
-    background-color: rgb(236, 230, 230);
+    background-color: rgb(245, 242, 242);
     -webkit-backdrop-filter: blur(10px);       /* Pour Safari */
     backdrop-filter: blur(10px); 
     box-sizing: border-box;   /* important pour inclure padding dans la largeur */
     
 }
 
+.user-option {
+    display: flex;
+    padding-top: 15px;
+    padding-left: 15px;
+    margin-bottom: 40px;
+}
 
 .taskOption {
     height: 70vh;
@@ -55,10 +61,9 @@ ul {
 
 .task-item {
     display: flex;
-    border-bottom: 1px solid #ccc;
     cursor: pointer;
     align-items: center;
-    padding: 5px 10px;
+    padding: 10px 15px;
 }
 
 .task-item li {
@@ -87,7 +92,22 @@ ul {
     flex: 0 0 auto; /* Garde sa taille */
 }
 
+/* 
+===============================
 
+Bouton ajouter une tache
+
+==============================
+*/
+
+#addBtn {
+    padding-left: 15px;
+    border-radius: 30px;
+    border: 0px solid white;
+    background-color: rgb(245, 242, 242);
+    color: rgb(241, 36, 36);
+    font-weight: bold;
+}
 
 /* 
 ===============================
