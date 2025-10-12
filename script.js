@@ -8,9 +8,19 @@ const maDiv = document.createElement("div")
 const spanDeleteModal = document.getElementById("deleteModal")
 const modeSelector = document.getElementById("modeSelector")
 
+const userName = document.getElementById("userName")
 
 maDiv.classList.add("edit")
 maDiv.setAttribute("contenteditable", "true");
+
+
+
+const namePrompt = prompt("Veuiller entrer votre nom")
+if(namePrompt) {
+    userName.textContent = namePrompt
+}
+
+
 
 
 addbtn.addEventListener("click", () => {
