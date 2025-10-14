@@ -133,11 +133,19 @@ maDiv.addEventListener("input", () => {
 });
 
 
+function ajouterTitreMaDiv() {
+    const title  = document.createElement("h2")
+    title.textContent = "Titre"
+    title .setAttribute("contenteditable", "true")
+    maDiv.appendChild(title)
+}
+
+
 
 /* 
 ===============================
 
-TEST
+Changement de mode Selectionner
 
 ==============================
 */
@@ -150,12 +158,14 @@ modeSelector.addEventListener("change", () => {
 
     maDiv.innerHTML = ""
 
-    if(mode === "edit") {
+    if(mode === "edit") { 
         maDiv.setAttribute("contenteditable", "true");  
+        ajouterTitreMaDiv()
         maDiv.innerHTML = selectedTask ? selectedTask.dataset.content : "";
     }
 
     else if(mode === "checkbox") {
+        ajouterTitreMaDiv()
         maDiv.removeAttribute("contenteditable", "true"); 
          const label = document.createElement("label");
         const checkbox = document.createElement("input");
@@ -170,18 +180,6 @@ modeSelector.addEventListener("change", () => {
         maDiv.appendChild(label);
         maDiv.appendChild(document.createElement("br"));
 
-    }
-
-    else if (mode === "kanban") {
-    maDiv.removeAttribute("contenteditable");
-
-    maDiv.innerHTML = `
-      <div class="kanban">
-        <div class="column" id="todo">À faire</div>
-        <div class="column" id="doing">En cours</div>
-        <div class="column" id="done">Fait</div>
-      </div>
-    `;
     }
 })
 

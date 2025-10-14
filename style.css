@@ -107,6 +107,7 @@ Bouton ajouter une tache
     background-color: rgb(245, 242, 242);
     color: rgb(241, 36, 36);
     font-weight: bold;
+    cursor: pointer;
 }
 
 /* 
@@ -120,7 +121,7 @@ rond d'urgence de la tâche
 .edit {
     width: 100%;
      padding-left: 80px;
-     padding-top: 70px;
+     padding-top: 10px;
      padding-right: 80px;
 
     overflow: hidden;
