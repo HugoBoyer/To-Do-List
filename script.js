@@ -13,14 +13,14 @@ const userName = document.getElementById("userName")
 maDiv.classList.add("edit")
 maDiv.setAttribute("contenteditable", "true");
 
-
+/*
 
 const namePrompt = prompt("Veuiller entrer votre nom")
 if(namePrompt) {
     userName.textContent = namePrompt
 }
 
-
+*/
 
 
 addbtn.addEventListener("click", () => {
@@ -73,7 +73,20 @@ function addTask(taskName, urgency) {
        
         } 
         selectedTask = li 
-        maDiv.innerHTML = li.dataset.content    
+        resetMaDivStructure(); // ✅ reconstruit titre + contenu
+
+        const tempDiv = document.createElement("div");
+        tempDiv.innerHTML = li.dataset.content;
+
+        const oldTitle = tempDiv.querySelector(".titre");
+        if (oldTitle) {
+            maDiv.querySelector(".titre").textContent = oldTitle.textContent;
+        }
+
+        const oldContent = tempDiv.querySelector(".contenu");
+        if (oldContent) {
+            maDiv.querySelector(".contenu").innerHTML = oldContent.innerHTML;
+        }    
         maDiv.focus();
     })        
     
@@ -133,14 +146,21 @@ maDiv.addEventListener("input", () => {
 });
 
 
-function ajouterTitreMaDiv() {
+
+function resetMaDivStructure() {
+    maDiv.innerHTML = ""
+
     const title  = document.createElement("h2")
     title.textContent = "Titre"
-    title .setAttribute("contenteditable", "true")
+    title.setAttribute("contenteditable", "true")
+    title.classList.add("titre")
+
+    const contentDiv = document.createElement("div")
+    contentDiv.classList.add("contenu");
+
     maDiv.appendChild(title)
+    maDiv.appendChild(contentDiv)
 }
-
-
 
 /* 
 ===============================
@@ -149,59 +169,133 @@ Changement de mode Selectionner
 
 ==============================
 */
+
 modeSelector.addEventListener("change", () => {
     const mode = modeSelector.value
 
-    if(selectedTask && maDiv.hasAttribute("contenteditable")) {
+    if(selectedTask) {
         selectedTask.dataset.content = maDiv.innerHTML
     }
 
-    maDiv.innerHTML = ""
+    resetMaDivStructure()
 
-    if(mode === "edit") { 
-        maDiv.setAttribute("contenteditable", "true");  
-        ajouterTitreMaDiv()
-        maDiv.innerHTML = selectedTask ? selectedTask.dataset.content : "";
-    }
+    const contentDiv = maDiv.querySelector(".contenu");
+    const title = maDiv.querySelector(".titre");
 
-    else if(mode === "checkbox") {
-        ajouterTitreMaDiv()
-        maDiv.removeAttribute("contenteditable", "true"); 
-         const label = document.createElement("label");
-        const checkbox = document.createElement("input");
-        checkbox.type = "checkbox";
+    // 🆕 Supprimer le bouton existant s'il y en a un
+    const existingBtn = maDiv.querySelector(".addCheckboxBtn");
+    if (existingBtn) existingBtn.remove();
 
-        const span = document.createElement("span");
-        span.textContent = "Nouvelle étape";
-        span.setAttribute("contenteditable", "true");
+    if (selectedTask) {
+        const tempDiv = document.createElement("div");
+        tempDiv.innerHTML = selectedTask.dataset.content;
 
-        label.appendChild(checkbox);
-        label.appendChild(span);
-        maDiv.appendChild(label);
-        maDiv.appendChild(document.createElement("br"));
+        const oldTitle = tempDiv.querySelector(".titre");
+        if (oldTitle) {
+            title.textContent = oldTitle.textContent;
+        }
 
+        const savedContent = tempDiv.querySelector(".contenu");
+        const oldContent = savedContent ? savedContent.innerHTML : "";
+
+        if (mode === "edit") {
+            contentDiv.setAttribute("contenteditable", "true");
+
+            // ✅ Extraire uniquement le texte des checkboxes
+            const temp = document.createElement("div");
+            temp.innerHTML = oldContent;
+
+            // Si on a des checkboxes, convertir en texte simple
+            const labels = temp.querySelectorAll("label");
+            if (labels.length > 0) {
+                let plainText = "";
+                labels.forEach(label => {
+                    const span = label.querySelector("span");
+                    if (span && span.textContent !== "Nouvelle Étape") {
+                        plainText += span.textContent + "<br>";
+                    }
+                });
+                contentDiv.innerHTML = plainText;
+            } else {
+                // Sinon, garder le contenu tel quel
+                contentDiv.innerHTML = oldContent;
+            }
+        } 
+
+        else if (mode === "checkbox") {
+            contentDiv.removeAttribute("contenteditable");
+            contentDiv.innerHTML = oldContent;
+
+            // ✅ Ajouter une checkbox seulement si le contenu est vide
+            if (contentDiv.innerHTML.trim() === "") {
+                addCheckboxStep(contentDiv);
+            }
+
+            // 🆕 Ajouter le bouton pour créer des checkboxes
+            addCheckboxButton();
+        }
+    } else {
+        // 🧼 Pas de tâche sélectionnée : juste init la zone
+        if (mode === "edit") {
+            contentDiv.setAttribute("contenteditable", "true");
+        } else if (mode === "checkbox") {
+            contentDiv.removeAttribute("contenteditable");
+            addCheckboxStep(contentDiv);
+            // 🆕 Ajouter le bouton
+            addCheckboxButton();
+        }
     }
 })
 
-if (!maDiv.hasAttribute("data-checkbox-listener")) {
-  maDiv.setAttribute("data-checkbox-listener", "true");
+// 🆕 Fonction pour ajouter un bouton de création de checkbox
+function addCheckboxButton() {
+    const btn = document.createElement("button");
+    btn.textContent = "➕ Ajouter une étape";
+    btn.classList.add("addCheckboxBtn");
+    btn.type = "button"; // Important pour éviter la soumission de form
+    
+    btn.addEventListener("click", (e) => {
+        e.preventDefault(); // Empêcher tout comportement par défaut
+        e.stopPropagation(); // Empêcher la propagation
+        
+        console.log("Bouton cliqué !"); // Debug
+        
+        // ✅ Récupérer contentDiv au moment du clic
+        const contentDiv = maDiv.querySelector(".contenu");
+        console.log("contentDiv trouvé:", contentDiv); // Debug
+        
+        if (contentDiv) {
+            addCheckboxStep(contentDiv);
+            console.log("Checkbox ajoutée !"); // Debug
+        } else {
+            console.log("❌ Pas de contentDiv trouvé !"); // Debug
+        }
+    });
+    
+    maDiv.appendChild(btn);
+}
 
-    maDiv.addEventListener("click", (e) => {
-        const currentMode = modeSelector.value;
-        if(currentMode === "checkbox" && e.target === maDiv) {
-            const label = document.createElement("label") 
+
+function addCheckboxStep(contentDiv) {
+    console.log("addCheckboxStep appelée"); // Debug
+
+    console.log("✅ Création de la checkbox..."); // Debug
+
+    const label = document.createElement("label");
+    const checkbox = document.createElement("input");
+    checkbox.type = "checkbox";
+
+    const editableTextSpan = document.createElement("span");
+    editableTextSpan.textContent = "Nouvelle Étape";
+    editableTextSpan.setAttribute("contenteditable", "true");
+
+    label.appendChild(checkbox);
+    label.appendChild(editableTextSpan);
+    contentDiv.appendChild(label);
+    contentDiv.appendChild(document.createElement("br"));
     
-            const checkbox = document.createElement("input")
-            checkbox.type = "checkbox"
+    console.log("✅ Checkbox créée et ajoutée au DOM !"); // Debug
     
-            const editableTextSpan = document.createElement("span")
-            editableTextSpan.textContent = "Nouvelle Etape";
-            editableTextSpan.setAttribute("contenteditable", "true");                    
-            
-            label.appendChild(checkbox)
-            label.appendChild(editableTextSpan)
-            maDiv.appendChild(label)
-            maDiv.appendChild(document.createElement("br"))
-        } 
-    })
+    // Focus automatique sur le nouveau champ
+    editableTextSpan.focus();
 }
