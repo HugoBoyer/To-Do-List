@@ -64,17 +64,27 @@ editorWrapper.classList.add("editor-wrapper");
 const editorHeader = document.createElement("div");
 editorHeader.classList.add("editor-header");
 
+const editorFooter = document.createElement("div");
+editorFooter.classList.add("editor-footer");
+
+const taskFinish = document.createElement("div");
+taskFinish.textContent = "Tache Terminer"
+taskFinish.id = "finishedTask"
+
 const editorTitle = document.createElement("div");
 editorTitle.classList.add("editor-title");
 editorTitle.setAttribute("contenteditable", "true");
 editorTitle.textContent = "Titre de la note";
 
 editorHeader.appendChild(editorTitle);
+editorFooter.appendChild(taskFinish)
 editorWrapper.appendChild(editorHeader);
+
+
 // Initialisation du vrai éditeur (zone principale)
 editor.init(editorWrapper);
 editor.element.classList.add("editor-content");
-
+editorWrapper.appendChild(editorFooter)
 taskOption.appendChild(editorWrapper);
 
 // =========================
@@ -163,7 +173,7 @@ function addCheckboxStep(editorContainer) {
     editableTextSpan.setAttribute("contenteditable", "true");
     editableTextSpan.classList.add("editableTextSpan")
     const deleteSpan = document.createElement("span")
-
+    
     
     deleteSpan.textContent = "X"
     deleteSpan.addEventListener('click', () => {
@@ -172,12 +182,14 @@ function addCheckboxStep(editorContainer) {
 
 
     editableTextSpan.addEventListener("input", () => editorContainer.update());
+
     checkbox.addEventListener("change", () => { 
         editor.update();
         if(checkbox.checked === true) {
-            console.log("cocher")
+            taskFinish.appendChild(document.createElement("br"))
+            taskFinish.appendChild(label)
         } else {
-            addCheckboxStep(editorContainer)
+            editorContainer.appendChild(label)
         }
     })
 
@@ -189,6 +201,7 @@ function addCheckboxStep(editorContainer) {
     editorContainer.appendChild(document.createElement("br"));
     console.log("✅ Checkbox créée et ajoutée au DOM !"); // Debug
 }
+
 
 //ajouter une checkbox
 function addCheckboxButton() {

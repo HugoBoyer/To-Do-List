@@ -258,12 +258,19 @@ Modal fenetre form
 }
 
 .editor-header {
+  margin-top: 50px;
   padding: 2.5rem 3.5rem;
   border-bottom: 1px solid #e5e7eb;
   outline: none;   
     word-wrap: break-word;             /* enlève le contour par défaut du focus */
     overflow-wrap: break-word;
 }
+
+.editor-footer {
+  padding: 2.5rem 3.5rem;
+  border-top: 1px solid #e5e7eb;
+}
+
 
 .editor-title {
   font-size: 1.4rem;
