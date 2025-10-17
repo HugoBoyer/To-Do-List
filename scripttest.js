@@ -136,6 +136,7 @@ modeSelector.addEventListener("change", () => {
     const mode = modeSelector.value
 
     if (mode === "checkbox") {
+
             editor.element.removeAttribute("contenteditable");
             // 🆕 Ajouter le bouton pour créer des checkboxes seulement s'il existe deja          
             if(!document.getElementById("addCheckbox")) {
@@ -153,7 +154,7 @@ modeSelector.addEventListener("change", () => {
 // =========================
 
 // creer une checkbox
-function addCheckboxStep(editor) {
+function addCheckboxStep(editorContainer) {
     const label = document.createElement("label");
     const checkbox = document.createElement("input");
     checkbox.type = "checkbox";
@@ -161,15 +162,31 @@ function addCheckboxStep(editor) {
     editableTextSpan.textContent = "Nouvelle Étape";
     editableTextSpan.setAttribute("contenteditable", "true");
     editableTextSpan.classList.add("editableTextSpan")
+    const deleteSpan = document.createElement("span")
 
-    editableTextSpan.addEventListener("input", () => editor.update());
-    checkbox.addEventListener("change", () => editor.update());
+    
+    deleteSpan.textContent = "X"
+    deleteSpan.addEventListener('click', () => {
+        label.remove()
+    })
 
-    editor.appendChild(document.createElement("br"));
+
+    editableTextSpan.addEventListener("input", () => editorContainer.update());
+    checkbox.addEventListener("change", () => { 
+        editor.update();
+        if(checkbox.checked === true) {
+            console.log("cocher")
+        } else {
+            addCheckboxStep(editorContainer)
+        }
+    })
+
+    editorContainer.appendChild(document.createElement("br"));
+    label.appendChild(deleteSpan)
     label.appendChild(checkbox);
     label.appendChild(editableTextSpan);
-    editor.appendChild(label);
-    editor.appendChild(document.createElement("br"));
+    editorContainer.appendChild(label);
+    editorContainer.appendChild(document.createElement("br"));
     console.log("✅ Checkbox créée et ajoutée au DOM !"); // Debug
 }
 
