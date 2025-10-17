@@ -18,19 +18,23 @@ const editor = {
         parent.appendChild(this.element);
     },
 
-    show(note) {
-        this.current = note;
-        this.element.textContent = note.content || ""
+    show(taskElement) {
+        this.current = taskElement;
+        editorTitle.textContent = taskElement.dataset.title || "Titre de la note";
+        this.element.innerHTML = taskElement.dataset.content || ""; 
     },
 
     update() {
         if (this.current) {
-            this.current.content = this.element.textContent
+            this.current.dataset.content = this.element.innerHTML
+            this.current.dataset.title = editorTitle.textContent;
+            //this.current.textContent = editorTitle.textContent; // met à jour le nom visible dans la liste
         }
     },
 
     clear() {
-        this.element.textContent = "";
+        this.element.innerHTML = "";
+        editorTitle.textContent = "Titre de la note";
         this.current = null;
     }
 }
@@ -71,9 +75,19 @@ editorWrapper.appendChild(editorHeader);
 editor.init(editorWrapper);
 editor.element.classList.add("editor-content");
 
-// On assemble
-
 taskOption.appendChild(editorWrapper);
+
+// =========================
+//  event met a jour le titre
+// =========================
+editor.element.addEventListener("input", () => {
+    editor.update();
+});
+
+// 🔹 Quand on modifie le titre
+editorTitle.addEventListener("input", () => {
+    editor.update();
+});
 // =========================
 //  event Ajouter une tache
 // =========================
@@ -109,21 +123,10 @@ taskForm.addEventListener('submit', (e) => {
 })
 
 // =========================
-//  
-// =========================
-
-
-
-// =========================
 //  event Editor
 // =========================
 editor.element.addEventListener("input", () => {
     editor.update()
-
-    // si on veut aussi synchroniser dataset du DOM (optionnel)
-    if(selectedTask){
-        selectedTask.dataset.content = editor.element.textContent;
-    }
 })
 
 // =========================
@@ -138,7 +141,6 @@ modeSelector.addEventListener("change", () => {
             if(!document.getElementById("addCheckbox")) {
                 addCheckboxButton();
             }
-
             // ✅ Ajouter une checkbox seulement si le contenu est vide
             if (editor.element.innerHTML.trim() === "") {
                 addCheckboxStep(editor.element);
@@ -160,12 +162,14 @@ function addCheckboxStep(editor) {
     editableTextSpan.setAttribute("contenteditable", "true");
     editableTextSpan.classList.add("editableTextSpan")
 
+    editableTextSpan.addEventListener("input", () => editor.update());
+    checkbox.addEventListener("change", () => editor.update());
+
     editor.appendChild(document.createElement("br"));
     label.appendChild(checkbox);
     label.appendChild(editableTextSpan);
     editor.appendChild(label);
     editor.appendChild(document.createElement("br"));
-    
     console.log("✅ Checkbox créée et ajoutée au DOM !"); // Debug
 }
 
@@ -205,8 +209,7 @@ function addTask(taskName, urgency) {
 
     div.addEventListener("click", () => {
         selectedTask = li;
-        editor.show({ content: li.dataset.content || ""});
-        editor.current = { content: li.dataset.content || ""}
+        editor.show(li);
     })
 
 
