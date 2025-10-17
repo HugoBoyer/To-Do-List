@@ -52,8 +52,28 @@ const userName = document.getElementById("userName")
 // =========================
 let selectedTask = null
 
-editor.init(taskOption)
 
+
+const editorWrapper = document.createElement("div");
+editorWrapper.classList.add("editor-wrapper");
+
+const editorHeader = document.createElement("div");
+editorHeader.classList.add("editor-header");
+
+const editorTitle = document.createElement("div");
+editorTitle.classList.add("editor-title");
+editorTitle.setAttribute("contenteditable", "true");
+editorTitle.textContent = "Titre de la note";
+
+editorHeader.appendChild(editorTitle);
+editorWrapper.appendChild(editorHeader);
+// Initialisation du vrai éditeur (zone principale)
+editor.init(editorWrapper);
+editor.element.classList.add("editor-content");
+
+// On assemble
+
+taskOption.appendChild(editorWrapper);
 // =========================
 //  event Ajouter une tache
 // =========================
@@ -87,6 +107,11 @@ taskForm.addEventListener('submit', (e) => {
     taskForm.reset()
     taskForm.style.display = "none";
 })
+
+// =========================
+//  
+// =========================
+
 
 
 // =========================
