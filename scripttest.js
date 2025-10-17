@@ -1,28 +1,58 @@
+
 // =========================
-// 🔹 Sélection des éléments
+// 🔹 Données
+// =========================
+const notes = [];
+
+// =========================
+// 🔹 Panneau d'édition (objet)
+// =========================
+const editor = {
+    element: document.createElement("div"),
+    current: null, // note selectionner
+
+    init(parent) {
+        this.element.id = "editor";
+        this.element.classList.add("edit")
+        this.element.setAttribute("contenteditable", "true");
+        parent.appendChild(this.element);
+    },
+
+    show(note) {
+        this.current = note;
+        this.element.textContent = note.content || ""
+    },
+
+    update() {
+        if (this.current) {
+            this.current.content = this.element.textContent
+        }
+    },
+
+    clear() {
+        this.element.textContent = "";
+        this.current = null;
+    }
+}
+
+// =========================
+// 🔹 Interface
 // =========================
 const addbtn = document.getElementById("addBtn")
 const taskList = document.querySelector(".taskList")
 const taskOption = document.querySelector(".taskOption")
 const todoContainer = document.getElementById("todo-container")
 const taskForm = document.getElementById("taskForm")
-const editor = document.createElement("div")
 const spanDeleteModal = document.getElementById("deleteModal")
 const modeSelector = document.getElementById("modeSelector")
 const userName = document.getElementById("userName")
-
 
 // =========================
 // 🔹 Variables globales
 // =========================
 let selectedTask = null
 
-// =========================
-// 🔹 Configuration de l’éditeur
-// =========================
-editor.setAttribute("contenteditable","true")
-editor.classList.add("edit")
-
+editor.init(taskOption)
 
 // =========================
 //  event Ajouter une tache
@@ -62,9 +92,12 @@ taskForm.addEventListener('submit', (e) => {
 // =========================
 //  event Editor
 // =========================
-editor.addEventListener("input", () => {
+editor.element.addEventListener("input", () => {
+    editor.update()
+
+    // si on veut aussi synchroniser dataset du DOM (optionnel)
     if(selectedTask){
-        selectedTask.dataset.content = editor.textContent;
+        selectedTask.dataset.content = editor.element.textContent;
     }
 })
 
@@ -84,7 +117,6 @@ function addTask(taskName, urgency) {
     
     //creation du rond d'urgence de tache
     const spanUrgency = document.createElement("div")
-    spanUrgency.dataset.urgency = urgency
     const urgencyColors = {
         "1": "low",
         "2": "medium",
@@ -95,14 +127,14 @@ function addTask(taskName, urgency) {
 
     div.addEventListener("click", () => {
         selectedTask = li;
-        editor.textContent = li.dataset.content || "";
+        editor.show({ content: li.dataset.content || ""});
+        editor.current = { content: li.dataset.content || ""}
     })
 
 
     div.appendChild(li)
     div.appendChild(spanUrgency)
     taskList.appendChild(div)
-    taskOption.appendChild(editor)
 }
 
 
