@@ -1,26 +1,24 @@
+// =========================
+// 🔹 Sélection des éléments
+// =========================
 const addbtn = document.getElementById("addBtn")
 const taskList = document.querySelector(".taskList")
 const taskOption = document.querySelector(".taskOption")
 const todoContainer = document.getElementById("todo-container")
 const taskForm = document.getElementById("taskForm")
-let selectedTask = null
 const maDiv = document.createElement("div")
 const spanDeleteModal = document.getElementById("deleteModal")
 const modeSelector = document.getElementById("modeSelector")
-
 const userName = document.getElementById("userName")
+
+// =========================
+// 🔹 Variables globales
+// =========================
+let selectedTask = null
 
 maDiv.classList.add("edit")
 maDiv.setAttribute("contenteditable", "true");
 
-/*
-
-const namePrompt = prompt("Veuiller entrer votre nom")
-if(namePrompt) {
-    userName.textContent = namePrompt
-}
-
-*/
 
 
 addbtn.addEventListener("click", () => {
