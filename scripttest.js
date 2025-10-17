@@ -184,21 +184,18 @@ function addCheckboxStep(editorContainer) {
     editableTextSpan.addEventListener("input", () => editorContainer.update());
 
     checkbox.addEventListener("change", () => { 
-        editor.update();
         if(checkbox.checked === true) {
-            taskFinish.appendChild(document.createElement("br"))
             taskFinish.appendChild(label)
         } else {
             editorContainer.appendChild(label)
         }
+        editor.update();
     })
 
-    editorContainer.appendChild(document.createElement("br"));
     label.appendChild(deleteSpan)
     label.appendChild(checkbox);
     label.appendChild(editableTextSpan);
     editorContainer.appendChild(label);
-    editorContainer.appendChild(document.createElement("br"));
     console.log("✅ Checkbox créée et ajoutée au DOM !"); // Debug
 }
 

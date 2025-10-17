@@ -299,3 +299,10 @@ Modal fenetre form
   background-color: rgba(0,0,0,0.2);
   border-radius: 4px;
 }
+
+label {
+    display: flex;
+    align-items: center;
+    gap: 8px;  /* espace entre checkbox et texte */
+    margin-bottom: 6px; /* espace entre les lignes */
+}
