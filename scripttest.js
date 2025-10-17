@@ -109,15 +109,16 @@ modeSelector.addEventListener("change", () => {
 
     if (mode === "checkbox") {
             editor.element.removeAttribute("contenteditable");
+            // 🆕 Ajouter le bouton pour créer des checkboxes seulement s'il existe deja          
+            if(!document.getElementById("addCheckbox")) {
+                addCheckboxButton();
+            }
 
             // ✅ Ajouter une checkbox seulement si le contenu est vide
             if (editor.element.innerHTML.trim() === "") {
                 addCheckboxStep(editor.element);
             }
-
-            // 🆕 Ajouter le bouton pour créer des checkboxes
-            addCheckboxButton();
-    }
+        }
 })
 
 // =========================
@@ -132,8 +133,9 @@ function addCheckboxStep(editor) {
     const editableTextSpan = document.createElement("span");
     editableTextSpan.textContent = "Nouvelle Étape";
     editableTextSpan.setAttribute("contenteditable", "true");
+    editableTextSpan.classList.add("editableTextSpan")
 
-
+    editor.appendChild(document.createElement("br"));
     label.appendChild(checkbox);
     label.appendChild(editableTextSpan);
     editor.appendChild(label);
@@ -141,7 +143,6 @@ function addCheckboxStep(editor) {
     
     console.log("✅ Checkbox créée et ajoutée au DOM !"); // Debug
 }
-
 
 //ajouter une checkbox
 function addCheckboxButton() {
@@ -154,7 +155,6 @@ function addCheckboxButton() {
         addCheckboxStep(editor.element)
     })
     editor.element.appendChild(butttonCheckbox)
-
 }
 
 // Ajouter une tache

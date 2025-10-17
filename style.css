@@ -233,7 +233,7 @@ Modal fenetre form
 .addCheckboxBtn {
     margin-top: 10px;
     padding: 8px 15px;
-    background: #4CAF50;
+    background: #d1d5d1d0;
     color: white;
     border: none;
     border-radius: 5px;
@@ -242,5 +242,5 @@ Modal fenetre form
 }
 
 .addCheckboxBtn:hover {
-    background: #45a049;
+    background: #717672;
 }
