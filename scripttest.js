@@ -101,10 +101,63 @@ editor.element.addEventListener("input", () => {
     }
 })
 
+// =========================
+//  Selection de mode
+// =========================
+modeSelector.addEventListener("change", () => {
+    const mode = modeSelector.value
+
+    if (mode === "checkbox") {
+            editor.element.removeAttribute("contenteditable");
+
+            // ✅ Ajouter une checkbox seulement si le contenu est vide
+            if (editor.element.innerHTML.trim() === "") {
+                addCheckboxStep(editor.element);
+            }
+
+            // 🆕 Ajouter le bouton pour créer des checkboxes
+            addCheckboxButton();
+    }
+})
 
 // =========================
 //  function
 // =========================
+
+// creer une checkbox
+function addCheckboxStep(editor) {
+    const label = document.createElement("label");
+    const checkbox = document.createElement("input");
+    checkbox.type = "checkbox";
+    const editableTextSpan = document.createElement("span");
+    editableTextSpan.textContent = "Nouvelle Étape";
+    editableTextSpan.setAttribute("contenteditable", "true");
+
+
+    label.appendChild(checkbox);
+    label.appendChild(editableTextSpan);
+    editor.appendChild(label);
+    editor.appendChild(document.createElement("br"));
+    
+    console.log("✅ Checkbox créée et ajoutée au DOM !"); // Debug
+}
+
+
+//ajouter une checkbox
+function addCheckboxButton() {
+    const butttonCheckbox = document.createElement("button")
+    butttonCheckbox.id = "addCheckbox"
+    butttonCheckbox.classList.add("addCheckboxBtn");
+    butttonCheckbox.textContent = "➕"
+
+    butttonCheckbox.addEventListener("click", () => {
+        addCheckboxStep(editor.element)
+    })
+    editor.element.appendChild(butttonCheckbox)
+
+}
+
+// Ajouter une tache
 function addTask(taskName, urgency) {
     // creer <div>
     const div = document.createElement("div");
