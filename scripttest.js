@@ -291,6 +291,30 @@ function addTask(taskName, urgency) {
         DeleteTask(li, div)
     })
 
+ //creer <div pour editer la tache>
+    const editTache = document.createElement("span")
+    editTache.textContent = "✏️"
+    editTache.classList.add("modalEdit"); // optionnel pour le style
+    
+    editTache.addEventListener("click", (e) => {
+        //creation de l'input d'édition
+        const inputEdit = document.createElement("input")
+        inputEdit.type = "text"
+        inputEdit.value = li.textContent
+        
+
+        //Remplacer le texte par l'input 
+        li.textContent = ""
+        li.appendChild(inputEdit)
+       inputEdit.focus()
+        
+       inputEdit.addEventListener("keydown", (e) => {
+           if(e.key === "Enter"){
+            li.textContent = inputEdit.value.trim() || "Tâche sans nom"
+        }
+       })
+     
+    })
 
     //creation du rond d'urgence de tache
     const spanUrgency = document.createElement("div")
@@ -308,6 +332,7 @@ function addTask(taskName, urgency) {
     })
 
     div.appendChild(deleteDivTask)
+    div.appendChild(editTache)
     div.appendChild(li)
     div.appendChild(spanUrgency)
     taskList.appendChild(div)
