@@ -176,26 +176,16 @@ modeSelector.addEventListener("change", () => {
 
 // changer en selectionnant checkbox
 function switchCheckbox() {
-    // Ajouter le bouton pour créer des checkboxes
-    addCheckboxButton();
-
     editor.element.removeAttribute("contenteditable");
 
-    //Sauvegarde texte de edit
-    if(editor.current) {
-        editor.current.dataset.textBeforeCheckbox = editor.element.innerHTML
-    }
-
-
+    // Ajouter le bouton pour créer des checkboxes
+    addCheckboxButton();
 
     // Vider uniquement les labels
     editor.element.querySelectorAll("label").forEach(label => label.remove());
 
-    
-
     // Réinjecter les checkboxes sauvegardées
     savedCheckboxes.forEach(label => editor.element.appendChild(label))
-
 
     //  Ajouter une checkbox seulement si le contenu est vide
     if (editor.element.innerHTML.trim() === "") {
@@ -207,12 +197,13 @@ function switchCheckbox() {
 
 // changer en selectionnant edit
 function switchEditMode() {
+    editorFooter.remove()
+    editor.element.style.height = "auto"
     // Supprimer le bouton ➕ (optionnel)
     const btn = document.getElementById("addCheckbox");
     if(btn && modeSelector.value !== "checkbox") btn.remove();
 
     editor.element.setAttribute("contenteditable", "true");
-
 
     //enregistrement des label
     const saveLabel = Array.from(editor.element.querySelectorAll("label"));
@@ -221,10 +212,11 @@ function switchEditMode() {
 
     editor.element.querySelectorAll("label").forEach(label => label.remove())
 
-    if (editor.current && editor.current.dataset.textBeforeCheckbox) {
-        editor.element.innerHTML = editor.current.dataset.textBeforeCheckbox
-    }
+
+
 }
+
+
 
 // creer une checkbox
 function addCheckboxStep(editorContainer) {
@@ -291,6 +283,15 @@ function addTask(taskName, urgency) {
     li.textContent = taskName;
     li.dataset.content = "";// stocke le contenu éditable
     
+    //creer <div pour supprimer> 
+    const deleteDivTask = document.createElement("span")
+    deleteDivTask.textContent = "✖"    
+    deleteDivTask.classList.add("delete"); // optionnel pour le style
+    deleteDivTask.addEventListener("click", () => {
+        DeleteTask(li, div)
+    })
+
+
     //creation du rond d'urgence de tache
     const spanUrgency = document.createElement("div")
     const urgencyColors = {
@@ -306,12 +307,15 @@ function addTask(taskName, urgency) {
         editor.show(li);
     })
 
-
+    div.appendChild(deleteDivTask)
     div.appendChild(li)
     div.appendChild(spanUrgency)
     taskList.appendChild(div)
 }
 
 
-
+function DeleteTask(taskElement, blockElement) {
+    taskElement.remove()
+    blockElement.remove()
+}
 

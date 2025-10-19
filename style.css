@@ -254,7 +254,7 @@ Modal fenetre form
   background: #fff;
   border-radius: 10px;
   box-shadow: 0 0 5px rgba(0,0,0,0.1);
-  overflow: hidden;
+  overflow: auto;
 }
 
 .editor-header {
@@ -305,6 +305,6 @@ label {
     margin-bottom: 6px; /* espace entre les lignes */
 }
 
-.editor-conten {
+.editor-content {
     margin-bottom: 50px;
 }
