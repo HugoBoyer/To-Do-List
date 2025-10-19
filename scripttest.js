@@ -22,6 +22,10 @@ const editor = {
         this.current = taskElement;
         editorTitle.textContent = taskElement.dataset.title || "Titre de la note";
         this.element.innerHTML = taskElement.dataset.content || ""; 
+    
+        if(modeSelector.value === "checkbox") {
+            addCheckboxButton();
+        }
     },
 
     update() {
@@ -59,6 +63,7 @@ let savedCheckboxes = [];
 
 
 const editorWrapper = document.createElement("div");
+editorWrapper.style.display = "none"
 editorWrapper.classList.add("editor-wrapper");
 
 const editorHeader = document.createElement("div");
@@ -140,6 +145,7 @@ taskForm.addEventListener('submit', (e) => {
     addTask(taskName, urgency)
     taskForm.reset()
     taskForm.style.display = "none";
+    editorWrapper.style.display = "block"
 })
 
 // =========================
@@ -170,37 +176,54 @@ modeSelector.addEventListener("change", () => {
 
 // changer en selectionnant checkbox
 function switchCheckbox() {
+    // Ajouter le bouton pour créer des checkboxes
+    addCheckboxButton();
+
     editor.element.removeAttribute("contenteditable");
+
+    //Sauvegarde texte de edit
+    if(editor.current) {
+        editor.current.dataset.textBeforeCheckbox = editor.element.innerHTML
+    }
+
+
 
     // Vider uniquement les labels
     editor.element.querySelectorAll("label").forEach(label => label.remove());
 
+    
+
+    // Réinjecter les checkboxes sauvegardées
     savedCheckboxes.forEach(label => editor.element.appendChild(label))
 
-    // 🆕 Ajouter le bouton pour créer des checkboxes seulement s'il existe deja          
-    if(!document.getElementById("addCheckbox")) {
-        addCheckboxButton();
-    }
-    // ✅ Ajouter une checkbox seulement si le contenu est vide
+
+    //  Ajouter une checkbox seulement si le contenu est vide
     if (editor.element.innerHTML.trim() === "") {
        addCheckboxStep(editor.element);
     }
+
+    editor.update(); // mettre à jour dataset
 }
 
 // changer en selectionnant edit
 function switchEditMode() {
-    editor.element.setAttribute("contenteditable", "true");
-
     // Supprimer le bouton ➕ (optionnel)
     const btn = document.getElementById("addCheckbox");
-    if(btn) btn.remove();
+    if(btn && modeSelector.value !== "checkbox") btn.remove();
 
+    editor.element.setAttribute("contenteditable", "true");
+
+
+    //enregistrement des label
     const saveLabel = Array.from(editor.element.querySelectorAll("label"));
-
+    //suppression des label
     saveLabel.forEach(label => label.remove())
 
-    // Supprimer tous les labels (optionnel si tu veux juste texte)
-    editor.element.querySelectorAll("label").forEach(label => label.remove());
+    editor.element.querySelectorAll("label").forEach(label => label.remove())
+
+    if (editor.current && editor.current.dataset.textBeforeCheckbox) {
+        editor.element.innerHTML = editor.current.dataset.textBeforeCheckbox
+    }
 }
 
 // creer une checkbox
@@ -236,12 +259,16 @@ function addCheckboxStep(editorContainer) {
     label.appendChild(checkbox);
     label.appendChild(editableTextSpan);
     editorContainer.appendChild(label);
+
+    savedCheckboxes.push(label); // sauvegarde
     console.log("✅ Checkbox créée et ajoutée au DOM !"); // Debug
 }
 
 
 //ajouter une checkbox
 function addCheckboxButton() {
+    // Si le bouton existe déjà, ne rien faire
+    if (document.getElementById("addCheckbox")) return;
     const butttonCheckbox = document.createElement("button")
     butttonCheckbox.id = "addCheckbox"
     butttonCheckbox.classList.add("addCheckboxBtn");

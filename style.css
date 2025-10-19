@@ -122,11 +122,12 @@ rond d'urgence de la tâche
      padding-left: 80px;
      padding-top: 10px;
      padding-right: 80px;
-
+    height: 450px;
     overflow: hidden;
       outline: none;   
       word-wrap: break-word;             /* enlève le contour par défaut du focus */
     overflow-wrap: break-word;
+    overflow: auto;
     }
 
 .low, .medium, .high, .unknown {
@@ -257,9 +258,7 @@ Modal fenetre form
 }
 
 .editor-header {
-  margin-top: 50px;
-  padding: 2.5rem 3.5rem;
-  border-bottom: 1px solid #e5e7eb;
+  padding: 2.5rem 80px;
   outline: none;   
     word-wrap: break-word;             /* enlève le contour par défaut du focus */
     overflow-wrap: break-word;
