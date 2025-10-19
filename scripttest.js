@@ -292,12 +292,81 @@ function addTask(taskName, urgency) {
     })
 
  //creer <div pour editer la tache>
-    const editTache = document.createElement("span")
+ const editTache = document.createElement("span")
     editTache.textContent = "✏️"
+  // Créer le formulaire avec template literal
+   editTache.addEventListener("click", (e) => {
+    e.stopPropagation();
+    
+    // Récupérer l'urgence actuelle
+    const currentUrgency = spanUrgency.classList.contains('low') ? '1' : 
+                           spanUrgency.classList.contains('medium') ? '2' : '3';
+    
+    // Créer le formulaire avec template literal
+    const editFormHTML = `
+        <form class="edit-task-form" style="position: absolute; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); z-index: 1000; min-width: 300px;">
+            <h2>Modifier le nom de la tâche</h2>
+            <input type="text" value="${li.textContent}" placeholder="Nom de la tâche" required style="width: 100%; padding: 8px; margin-bottom: 10px; border: 1px solid #ddd; border-radius: 4px;">
+            <select required style="width: 100%; padding: 8px; margin-bottom: 10px; border: 1px solid #ddd; border-radius: 4px;">
+                <option value="1" ${currentUrgency === '1' ? 'selected' : ''}>⚪ Faible</option>
+                <option value="2" ${currentUrgency === '2' ? 'selected' : ''}>🟡 Moyenne</option>
+                <option value="3" ${currentUrgency === '3' ? 'selected' : ''}>🔴 Urgente</option>
+            </select>
+            <div style="display: flex; gap: 10px; justify-content: flex-end;">
+                <button type="button" class="btn-cancel" style="padding: 8px 16px; background: #f44336; color: white; border: none; border-radius: 4px; cursor: pointer;">Annuler</button>
+                <button type="submit" style="padding: 8px 16px; background: #4CAF50; color: white; border: none; border-radius: 4px; cursor: pointer;">Enregistrer</button>
+            </div>
+        </form>
+    `;
+    
+    // Créer un div temporaire et insérer le HTML
+    const tempDiv = document.createElement('div');
+    tempDiv.innerHTML = editFormHTML;
+    const editForm = tempDiv.firstElementChild;
+    
+    // Ajouter au body et positionner
+    document.body.appendChild(editForm);
+    const rect = div.getBoundingClientRect();
+    editForm.style.top = `${rect.top + window.scrollY}px`;
+    editForm.style.left = `${rect.right + window.scrollX + 10}px`;
+    
+    const inputName = editForm.querySelector('input');
+    const selectUrgency = editForm.querySelector('select');
+    inputName.focus();
+    
+    // Soumission
+    editForm.addEventListener("submit", (e) => {
+        e.preventDefault();
+        li.textContent = inputName.value.trim() || "Tâche sans nom";
+        
+        const urgencyColors = { "1": "low", "2": "medium", "3": "high" };
+        spanUrgency.className = urgencyColors[selectUrgency.value];
+        
+        editForm.remove();
+    });
+    
+    // Annuler
+    editForm.querySelector('.btn-cancel').addEventListener("click", () => editForm.remove());
+    
+    // Fermer si clic dehors
+    setTimeout(() => {
+        document.addEventListener("click", function closeForm(e) {
+            if (!editForm.contains(e.target) && e.target !== editTache) {
+                editForm.remove();
+                document.removeEventListener("click", closeForm);
+            }
+            });
+        }, 0);
+    });
+    
+    
+    /*
     editTache.classList.add("modalEdit"); // optionnel pour le style
     
     editTache.addEventListener("click", (e) => {
         //creation de l'input d'édition
+
+
         const inputEdit = document.createElement("input")
         inputEdit.type = "text"
         inputEdit.value = li.textContent
@@ -314,7 +383,7 @@ function addTask(taskName, urgency) {
         }
        })
      
-    })
+    })*/
 
     //creation du rond d'urgence de tache
     const spanUrgency = document.createElement("div")
