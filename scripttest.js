@@ -4,6 +4,47 @@
 // =========================
 const notes = [];
 
+// Charger toutes les tâches depuis localStorage
+function loadTasks() {
+    const saved = localStorage.getItem('tasks');
+    return saved ? JSON.parse(saved) : [];
+}
+
+// Sauvegarder toutes les tâches dans localStorage
+function saveTasks(tasks) {
+    localStorage.setItem('tasks', JSON.stringify(tasks));
+}
+
+// Sauvegarder une tâche spécifique
+function saveTaskData(taskId, data) {
+    const tasks = loadTasks();
+    const index = tasks.findIndex(t => t.id === taskId);
+    
+    if (index !== -1) {
+        tasks[index] = { ...tasks[index], ...data };
+    } else {
+        tasks.push({ id: taskId, ...data });
+    }
+    
+    saveTasks(tasks);
+}
+
+
+// Récupérer les données d'une tâche
+function getTaskData(taskId) {
+    const tasks = loadTasks();
+    return tasks.find(t => t.id === taskId) || null;
+}
+
+
+// Supprimer une tâche du localStorage
+function deleteTaskData(taskId) {
+    const tasks = loadTasks();
+    const filtered = tasks.filter(t => t.id !== taskId);
+    saveTasks(filtered);
+}
+
+
 // =========================
 // 🔹 Panneau d'édition (objet)
 // =========================
@@ -19,21 +60,59 @@ const editor = {
     },
 
     show(taskElement) {
+        // 🔹 SAUVEGARDER l'ancienne tâche avant de changer
+        if (this.current && this.current !== taskElement) {
+            this.update();
+        }
+
         this.current = taskElement;
-        editorTitle.textContent = taskElement.dataset.title || "Titre de la note";
-        this.element.innerHTML = taskElement.dataset.content || ""; 
-    
-        if(modeSelector.value === "checkbox") {
-            addCheckboxButton();
+        const taskId = taskElement.dataset.id;
+
+        // Charger depuis localStorage
+        const savedData = getTaskData(taskId);
+
+        if (savedData) {
+            editorTitle.textContent = savedData.title || "Titre de la note";
+            // 🔹 Charger le contenu directement
+            this.element.innerHTML = savedData.content || "";
+        } else {
+            editorTitle.textContent = taskElement.dataset.title || "Titre de la note";
+            this.element.innerHTML = taskElement.dataset.content || "";
+        }
+
+        // 🔹 Ajuster l'interface selon le mode ACTUEL
+        const currentMode = modeSelector.value;
+        
+        if (currentMode === "checkbox") {
+            this.element.removeAttribute("contenteditable");
+            if (!document.getElementById("addCheckbox")) {
+                addCheckboxButton();
+            }
+        } else {
+            this.element.setAttribute("contenteditable", "true");
+            const btn = document.getElementById("addCheckbox");
+            if (btn) btn.remove();
         }
     },
 
     update() {
-        if (this.current) {
-            this.current.dataset.content = this.element.innerHTML
-            this.current.dataset.title = editorTitle.textContent;
-            //this.current.textContent = editorTitle.textContent; // met à jour le nom visible dans la liste
-        }
+         if (this.current) {
+        const taskId = this.current.dataset.id;
+        const content = this.element.innerHTML;
+        const title = editorTitle.textContent;
+        const mode = modeSelector.value;
+        
+        // Sauvegarder dans dataset (comme avant)
+        this.current.dataset.content = content;
+        this.current.dataset.title = title;
+        
+        //  Sauvegarder dans localStorage
+        saveTaskData(taskId, {
+            title: title,
+            content: content,
+            mode: mode
+        });
+    }
     },
 
     clear() {
@@ -97,6 +176,12 @@ taskOption.appendChild(editorWrapper);
 //  event Au chargement de la page
 // =========================
 window.addEventListener("DOMContentLoaded", () => {
+       // 🔹 Charger les tâches sauvegardées
+    const savedTasks = loadTasks();
+    savedTasks.forEach(task => {
+        addTask(task.title, task.urgency, task.id, task.content, task.mode);
+    });
+
     const mode = modeSelector.value;
     if (mode === "checkbox") switchCheckbox();
     if (mode === "edit") switchEditMode();
@@ -175,51 +260,42 @@ modeSelector.addEventListener("change", () => {
 // =========================
 
 // changer en selectionnant checkbox
+// changer en selectionnant checkbox
 function switchCheckbox() {
     editor.element.removeAttribute("contenteditable");
-
-    // Ajouter le bouton pour créer des checkboxes
     addCheckboxButton();
 
-    // Vider uniquement les labels
-    editor.element.querySelectorAll("label").forEach(label => label.remove());
-
-    // Réinjecter les checkboxes sauvegardées
-    savedCheckboxes.forEach(label => editor.element.appendChild(label))
-
-    //  Ajouter une checkbox seulement si le contenu est vide
-    if (editor.element.innerHTML.trim() === "") {
-       addCheckboxStep(editor.element);
+    const hasCheckboxes = editor.element.querySelector('input[type="checkbox"]');
+    const hasContent = editor.element.innerHTML.trim() !== "" && 
+                       editor.element.innerHTML.trim() !== '<button id="addCheckbox" class="addCheckboxBtn">➕</button>';
+    
+    if (!hasCheckboxes && !hasContent) {
+        addCheckboxStep(editor.element);
     }
 
-    editor.update(); // mettre à jour dataset
+    editor.update(); // ✅ Déjà là, c'est bon
 }
 
 // changer en selectionnant edit
 function switchEditMode() {
-    editorFooter.remove()
-    editor.element.style.height = "auto"
-    // Supprimer le bouton ➕ (optionnel)
+    // Supprimer le bouton ➕
     const btn = document.getElementById("addCheckbox");
-    if(btn && modeSelector.value !== "checkbox") btn.remove();
+    if (btn) btn.remove();
 
     editor.element.setAttribute("contenteditable", "true");
 
-    //enregistrement des label
-    const saveLabel = Array.from(editor.element.querySelectorAll("label"));
-    //suppression des label
-    saveLabel.forEach(label => label.remove())
+    // 🔹 NE PAS supprimer les labels ! Les laisser dans le contenu
+    // L'utilisateur pourra les modifier en mode texte s'il veut
 
-    editor.element.querySelectorAll("label").forEach(label => label.remove())
-
-
-
+    editor.update(); // sauvegarder le changement de mode
 }
 
 
 
 // creer une checkbox
 function addCheckboxStep(editorContainer) {
+    console.log("🔵 addCheckboxStep appelée"); // DEBUG
+    
     const label = document.createElement("label");
     const checkbox = document.createElement("input");
     checkbox.type = "checkbox";
@@ -229,16 +305,20 @@ function addCheckboxStep(editorContainer) {
     editableTextSpan.classList.add("editableTextSpan")
     const deleteSpan = document.createElement("span")
     
-    
     deleteSpan.textContent = "X"
     deleteSpan.addEventListener('click', () => {
+        console.log("🟡 Delete cliqué"); // DEBUG
         label.remove()
+        editor.update();
     })
 
-
-    editableTextSpan.addEventListener("input", () => editorContainer.update());
+    editableTextSpan.addEventListener("input", () => {
+        console.log("🟢 Input modifié"); // DEBUG
+        editor.update();
+    });
 
     checkbox.addEventListener("change", () => { 
+        console.log("🟣 Checkbox changée"); // DEBUG
         if(checkbox.checked === true) {
             taskFinish.appendChild(label)
         } else {
@@ -252,10 +332,13 @@ function addCheckboxStep(editorContainer) {
     label.appendChild(editableTextSpan);
     editorContainer.appendChild(label);
 
-    savedCheckboxes.push(label); // sauvegarde
-    console.log("✅ Checkbox créée et ajoutée au DOM !"); // Debug
+    // 🔹 Sauvegarder immédiatement après création
+    console.log("🔴 Appel de editor.update()"); // DEBUG
+    console.log("editor.current =", editor.current); // DEBUG
+    editor.update();
+    
+    console.log("✅ Checkbox créée et sauvegardée !"); 
 }
-
 
 //ajouter une checkbox
 function addCheckboxButton() {
@@ -273,119 +356,101 @@ function addCheckboxButton() {
 }
 
 // Ajouter une tache
-function addTask(taskName, urgency) {
-    // creer <div>
+// Ajouter une tache
+function addTask(taskName, urgency, taskId = null, savedContent = "", savedMode = "edit") {
     const div = document.createElement("div");
-    div.classList.add("task-item"); // optionnel pour le style
+    div.classList.add("task-item");
 
-    // creer <li pour l'affichage des tache>
     const li = document.createElement("li");
     li.textContent = taskName;
-    li.dataset.content = "";// stocke le contenu éditable
+
+    // 🔹 Générer un ID vraiment unique
+    const id = taskId || `task-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+    li.dataset.id = id;
+    li.dataset.content = savedContent;
+    li.dataset.title = taskName;
+
+    // 🔹 Sauvegarder dans localStorage (seulement si nouvelle tâche)
+    if (!taskId) {
+        saveTaskData(id, {
+            id: id, // 🔹 Important : sauvegarder aussi l'ID
+            title: taskName,
+            content: savedContent,
+            urgency: urgency,
+            mode: savedMode
+        });
+    }
     
-    //creer <div pour supprimer> 
     const deleteDivTask = document.createElement("span")
     deleteDivTask.textContent = "✖"    
-    deleteDivTask.classList.add("delete"); // optionnel pour le style
+    deleteDivTask.classList.add("delete");
     deleteDivTask.addEventListener("click", () => {
         DeleteTask(li, div)
     })
 
- //creer <div pour editer la tache>
- const editTache = document.createElement("span")
+    const editTache = document.createElement("span")
     editTache.textContent = "✏️"
-  // Créer le formulaire avec template literal
-   editTache.addEventListener("click", (e) => {
-    e.stopPropagation();
-    
-    // Récupérer l'urgence actuelle
-    const currentUrgency = spanUrgency.classList.contains('low') ? '1' : 
-                           spanUrgency.classList.contains('medium') ? '2' : '3';
-    
-    // Créer le formulaire avec template literal
-    const editFormHTML = `
-        <form class="edit-task-form" style="position: absolute; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); z-index: 1000; min-width: 300px;">
-            <h2>Modifier le nom de la tâche</h2>
-            <input type="text" value="${li.textContent}" placeholder="Nom de la tâche" required style="width: 100%; padding: 8px; margin-bottom: 10px; border: 1px solid #ddd; border-radius: 4px;">
-            <select required style="width: 100%; padding: 8px; margin-bottom: 10px; border: 1px solid #ddd; border-radius: 4px;">
-                <option value="1" ${currentUrgency === '1' ? 'selected' : ''}>⚪ Faible</option>
-                <option value="2" ${currentUrgency === '2' ? 'selected' : ''}>🟡 Moyenne</option>
-                <option value="3" ${currentUrgency === '3' ? 'selected' : ''}>🔴 Urgente</option>
-            </select>
-            <div style="display: flex; gap: 10px; justify-content: flex-end;">
-                <button type="button" class="btn-cancel" style="padding: 8px 16px; background: #f44336; color: white; border: none; border-radius: 4px; cursor: pointer;">Annuler</button>
-                <button type="submit" style="padding: 8px 16px; background: #4CAF50; color: white; border: none; border-radius: 4px; cursor: pointer;">Enregistrer</button>
-            </div>
-        </form>
-    `;
-    
-    // Créer un div temporaire et insérer le HTML
-    const tempDiv = document.createElement('div');
-    tempDiv.innerHTML = editFormHTML;
-    const editForm = tempDiv.firstElementChild;
-    
-    // Ajouter au body et positionner
-    document.body.appendChild(editForm);
-    const rect = div.getBoundingClientRect();
-    editForm.style.top = `${rect.top + window.scrollY}px`;
-    editForm.style.left = `${rect.right + window.scrollX + 10}px`;
-    
-    const inputName = editForm.querySelector('input');
-    const selectUrgency = editForm.querySelector('select');
-    inputName.focus();
-    
-    // Soumission
-    editForm.addEventListener("submit", (e) => {
-        e.preventDefault();
-        li.textContent = inputName.value.trim() || "Tâche sans nom";
+    editTache.addEventListener("click", (e) => {
+        e.stopPropagation();
         
-        const urgencyColors = { "1": "low", "2": "medium", "3": "high" };
-        spanUrgency.className = urgencyColors[selectUrgency.value];
+        const currentUrgency = spanUrgency.classList.contains('low') ? '1' : 
+                               spanUrgency.classList.contains('medium') ? '2' : '3';
         
-        editForm.remove();
-    });
-    
-    // Annuler
-    editForm.querySelector('.btn-cancel').addEventListener("click", () => editForm.remove());
-    
-    // Fermer si clic dehors
-    setTimeout(() => {
-        document.addEventListener("click", function closeForm(e) {
-            if (!editForm.contains(e.target) && e.target !== editTache) {
-                editForm.remove();
-                document.removeEventListener("click", closeForm);
-            }
+        const editFormHTML = `
+            <form class="edit-task-form" style="position: absolute; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); z-index: 1000; min-width: 300px;">
+                <h2>Modifier le nom de la tâche</h2>
+                <input type="text" value="${li.textContent}" placeholder="Nom de la tâche" required style="width: 100%; padding: 8px; margin-bottom: 10px; border: 1px solid #ddd; border-radius: 4px;">
+                <select required style="width: 100%; padding: 8px; margin-bottom: 10px; border: 1px solid #ddd; border-radius: 4px;">
+                    <option value="1" ${currentUrgency === '1' ? 'selected' : ''}>⚪ Faible</option>
+                    <option value="2" ${currentUrgency === '2' ? 'selected' : ''}>🟡 Moyenne</option>
+                    <option value="3" ${currentUrgency === '3' ? 'selected' : ''}>🔴 Urgente</option>
+                </select>
+                <div style="display: flex; gap: 10px; justify-content: flex-end;">
+                    <button type="button" class="btn-cancel" style="padding: 8px 16px; background: #f44336; color: white; border: none; border-radius: 4px; cursor: pointer;">Annuler</button>
+                    <button type="submit" style="padding: 8px 16px; background: #4CAF50; color: white; border: none; border-radius: 4px; cursor: pointer;">Enregistrer</button>
+                </div>
+            </form>
+        `;
+        
+        const tempDiv = document.createElement('div');
+        tempDiv.innerHTML = editFormHTML;
+        const editForm = tempDiv.firstElementChild;
+        
+        document.body.appendChild(editForm);
+        
+        const inputName = editForm.querySelector('input');
+        const selectUrgency = editForm.querySelector('select');
+        inputName.focus();
+        
+        editForm.addEventListener("submit", (e) => {
+            e.preventDefault();
+            const newName = inputName.value.trim() || "Tâche sans nom";
+            li.textContent = newName;
+            
+            // 🔹 Mettre à jour aussi dans localStorage
+            saveTaskData(id, { title: newName });
+            
+            const urgencyColors = { "1": "low", "2": "medium", "3": "high" };
+            spanUrgency.className = urgencyColors[selectUrgency.value];
+            
+            // 🔹 Mettre à jour l'urgence dans localStorage
+            saveTaskData(id, { urgency: selectUrgency.value });
+            
+            editForm.remove();
+        });
+        
+        editForm.querySelector('.btn-cancel').addEventListener("click", () => editForm.remove());
+        
+        setTimeout(() => {
+            document.addEventListener("click", function closeForm(e) {
+                if (!editForm.contains(e.target) && e.target !== editTache) {
+                    editForm.remove();
+                    document.removeEventListener("click", closeForm);
+                }
             });
         }, 0);
     });
-    
-    
-    /*
-    editTache.classList.add("modalEdit"); // optionnel pour le style
-    
-    editTache.addEventListener("click", (e) => {
-        //creation de l'input d'édition
 
-
-        const inputEdit = document.createElement("input")
-        inputEdit.type = "text"
-        inputEdit.value = li.textContent
-        
-
-        //Remplacer le texte par l'input 
-        li.textContent = ""
-        li.appendChild(inputEdit)
-       inputEdit.focus()
-        
-       inputEdit.addEventListener("keydown", (e) => {
-           if(e.key === "Enter"){
-            li.textContent = inputEdit.value.trim() || "Tâche sans nom"
-        }
-       })
-     
-    })*/
-
-    //creation du rond d'urgence de tache
     const spanUrgency = document.createElement("div")
     const urgencyColors = {
         "1": "low",
@@ -394,9 +459,9 @@ function addTask(taskName, urgency) {
     }
     spanUrgency.classList.add(urgencyColors[urgency]);
 
-
     div.addEventListener("click", () => {
         selectedTask = li;
+        editorWrapper.style.display = "block";
         editor.show(li);
     })
 
@@ -405,10 +470,21 @@ function addTask(taskName, urgency) {
     div.appendChild(li)
     div.appendChild(spanUrgency)
     taskList.appendChild(div)
+
+    if (!taskId) { // Seulement pour les nouvelles tâches
+        selectedTask = li;
+        editorWrapper.style.display = "block";
+        editor.show(li);
+    }
 }
 
 
 function DeleteTask(taskElement, blockElement) {
+    const taskId = taskElement.dataset.id;
+    
+    // 🔹 Supprimer du localStorage
+    deleteTaskData(taskId);
+
     taskElement.remove()
     blockElement.remove()
 }
