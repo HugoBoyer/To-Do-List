@@ -85,13 +85,7 @@ reattachCheckboxEvents = () => {
                 if(newCheckbox.checked === true) {
                     taskFinish.appendChild(label);
                 } else {
-                    //  Remettre AVANT le bouton ➕
-                    const addBtn = editor.element.querySelector('#addCheckbox');
-                    if (addBtn) {
-                        editor.element.insertBefore(label, addBtn);
-                    } else {
-                        editor.element.appendChild(label);
-                    }
+                    editor.element.appendChild(label);
                 }
                 editor.update()
             })
@@ -426,12 +420,7 @@ function addCheckboxStep(editorContainer) {
         if(checkbox.checked === true) {
             taskFinish.appendChild(label)
         } else {
-            const addBtn = editor.element.querySelector('#addCheckbox')
-            if (addBtn) {
-                editorContainer.insertBefore(label, addBtn);
-            } else {
-                editorContainer.appendChild(label)
-            }
+            editorContainer.appendChild(label);
         }
         editor.update();
     })
@@ -441,12 +430,7 @@ function addCheckboxStep(editorContainer) {
     label.appendChild(editableTextSpan);
 
 
-     const addBtn = editorContainer.querySelector('#addCheckbox');
-    if (addBtn) {
-        editorContainer.insertBefore(label, addBtn);
-    } else {
-        editorContainer.appendChild(label);
-    }
+    editorContainer.appendChild(label);
 
     // 🔹 Sauvegarder immédiatement après création
     console.log("🔴 Appel de editor.update()"); // DEBUG
@@ -460,13 +444,22 @@ function addCheckboxStep(editorContainer) {
 //ajouter une checkbox
 function addCheckboxButton() {
     // Si le bouton existe déjà, ne rien faire
-    if (document.getElementById("addCheckbox")) return;
+    if (document.getElementById("addCheckbox")) {
+        console.log("⚠️ Bouton ➕ existe déjà");
+        return;
+    }
+    console.log("➕ Création du bouton");
+
     const butttonCheckbox = document.createElement("button")
     butttonCheckbox.id = "addCheckbox"
     butttonCheckbox.classList.add("addCheckboxBtn");
     butttonCheckbox.textContent = "➕"
 
-    butttonCheckbox.addEventListener("click", () => {
+    butttonCheckbox.addEventListener("click", (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        console.log("🔵 Bouton ➕ cliqué !");
+        console.log("🔵 editor.current =", editor.current);
         addCheckboxStep(editor.element)
     })
     editor.element.appendChild(butttonCheckbox)
