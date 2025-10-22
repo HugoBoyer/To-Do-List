@@ -44,7 +44,61 @@ function deleteTaskData(taskId) {
     saveTasks(filtered);
 }
 
+// Réattacher les événements aux checkboxes chargées
+reattachCheckboxEvents = () => {
+     // Gérer les checkboxes dans l'éditeur ET dans taskFinish
+    const Alllabels = [
+        ...editor.element.querySelectorAll("label"),
+        ...taskFinish.querySelectorAll("label")
+    ]
 
+    Alllabels.forEach(label => {
+        const checkbox = label.querySelector('input[type="checkbox"]');
+        const deleteSpan = label.querySelector('span:first-child');
+        const editableSpan = label.querySelector('.editableTextSpan')
+
+        if(checkbox && deleteSpan && editableSpan) {
+
+            const wasChecked = checkbox.checked || checkbox.hasAttribute('checked');
+
+            const newCheckbox = checkbox.cloneNode(true);
+            const newDeleteSpan = deleteSpan.cloneNode(true)
+            const newEditableSpan = editableSpan.cloneNode(true)
+
+             if (wasChecked) {
+                newCheckbox.checked = true;
+                newCheckbox.setAttribute('checked', 'checked');
+            }
+
+            checkbox.replaceWith(newCheckbox)
+            deleteSpan.replaceWith(newDeleteSpan)
+            editableSpan.replaceWith(newEditableSpan)
+
+            newDeleteSpan.addEventListener('click', () => {
+                label.remove()
+                editor.update();
+            })
+            newEditableSpan.addEventListener("input", () => {
+                editor.update()
+            })
+            newCheckbox.addEventListener("change", () => {
+                if(newCheckbox.checked === true) {
+                    taskFinish.appendChild(label);
+                } else {
+                    //  Remettre AVANT le bouton ➕
+                    const addBtn = editor.element.querySelector('#addCheckbox');
+                    if (addBtn) {
+                        editor.element.insertBefore(label, addBtn);
+                    } else {
+                        editor.element.appendChild(label);
+                    }
+                }
+                editor.update()
+            })
+            console.log(" Evenement attacher, checked =", newCheckbox.checked)
+        }
+    })
+}
 // =========================
 // 🔹 Panneau d'édition (objet)
 // =========================
@@ -60,7 +114,7 @@ const editor = {
     },
 
     show(taskElement) {
-        // 🔹 SAUVEGARDER l'ancienne tâche avant de changer
+        //  SAUVEGARDER l'ancienne tâche avant de changer
         if (this.current && this.current !== taskElement) {
             this.update();
         }
@@ -73,34 +127,75 @@ const editor = {
 
         if (savedData) {
             editorTitle.textContent = savedData.title || "Titre de la note";
-            // 🔹 Charger le contenu directement
+            //  Charger le contenu directement
             this.element.innerHTML = savedData.content || "";
+
+
+            if (savedData.finishedContent && savedData.finishedContent.trim() !== "") {
+            taskFinish.innerHTML = savedData.finishedContent;
+            } else {
+                taskFinish.innerHTML = "";
+                taskFinish.textContent = "Tâche Terminée";
+            }
         } else {
-            editorTitle.textContent = taskElement.dataset.title || "Titre de la note";
+             editorTitle.textContent = taskElement.dataset.title || "Titre de la note";
             this.element.innerHTML = taskElement.dataset.content || "";
+            taskFinish.innerHTML = "";
+            taskFinish.textContent = "Tâche Terminée";
         }
 
-        // 🔹 Ajuster l'interface selon le mode ACTUEL
+
         const currentMode = modeSelector.value;
         
         if (currentMode === "checkbox") {
             this.element.removeAttribute("contenteditable");
+            if (!editorWrapper.contains(editorFooter)) {
+                editorWrapper.appendChild(editorFooter);
+            }
+        
             if (!document.getElementById("addCheckbox")) {
                 addCheckboxButton();
             }
+            reattachCheckboxEvents();
         } else {
             this.element.setAttribute("contenteditable", "true");
             const btn = document.getElementById("addCheckbox");
             if (btn) btn.remove();
+
+            if (editorWrapper.contains(editorFooter)) {
+            editorFooter.remove();
+        }
         }
     },
 
     update() {
          if (this.current) {
         const taskId = this.current.dataset.id;
+
+        const labels = this.element.querySelectorAll('label');
+        labels.forEach(label => {
+            const checkbox = label.querySelector('input[type="checkbox"]');
+            if (checkbox && checkbox.checked) {
+                checkbox.setAttribute('checked', 'checked');
+            } else if (checkbox) {
+                checkbox.removeAttribute('checked');
+            }
+        });
+        
+        // Faire pareil pour taskFinish
+        const finishedLabels = taskFinish.querySelectorAll('label');
+        finishedLabels.forEach(label => {
+            const checkbox = label.querySelector('input[type="checkbox"]');
+            if (checkbox) {
+                checkbox.setAttribute('checked', 'checked'); // Toujours checked dans taskFinish
+            }
+        });
+
         const content = this.element.innerHTML;
         const title = editorTitle.textContent;
         const mode = modeSelector.value;
+
+        const finishedContent = taskFinish.innerHTML;
         
         // Sauvegarder dans dataset (comme avant)
         this.current.dataset.content = content;
@@ -110,6 +205,7 @@ const editor = {
         saveTaskData(taskId, {
             title: title,
             content: content,
+            finishedContent: finishedContent, 
             mode: mode
         });
     }
@@ -263,6 +359,12 @@ modeSelector.addEventListener("change", () => {
 // changer en selectionnant checkbox
 function switchCheckbox() {
     editor.element.removeAttribute("contenteditable");
+
+     if (!editorWrapper.contains(editorFooter)) {
+        editorWrapper.appendChild(editorFooter);
+    }
+
+
     addCheckboxButton();
 
     const hasCheckboxes = editor.element.querySelector('input[type="checkbox"]');
@@ -272,6 +374,8 @@ function switchCheckbox() {
     if (!hasCheckboxes && !hasContent) {
         addCheckboxStep(editor.element);
     }
+
+    reattachCheckboxEvents();
 
     editor.update(); // ✅ Déjà là, c'est bon
 }
@@ -322,7 +426,12 @@ function addCheckboxStep(editorContainer) {
         if(checkbox.checked === true) {
             taskFinish.appendChild(label)
         } else {
-            editorContainer.appendChild(label)
+            const addBtn = editor.element.querySelector('#addCheckbox')
+            if (addBtn) {
+                editorContainer.insertBefore(label, addBtn);
+            } else {
+                editorContainer.appendChild(label)
+            }
         }
         editor.update();
     })
@@ -330,11 +439,19 @@ function addCheckboxStep(editorContainer) {
     label.appendChild(deleteSpan)
     label.appendChild(checkbox);
     label.appendChild(editableTextSpan);
-    editorContainer.appendChild(label);
+
+
+     const addBtn = editorContainer.querySelector('#addCheckbox');
+    if (addBtn) {
+        editorContainer.insertBefore(label, addBtn);
+    } else {
+        editorContainer.appendChild(label);
+    }
 
     // 🔹 Sauvegarder immédiatement après création
     console.log("🔴 Appel de editor.update()"); // DEBUG
     console.log("editor.current =", editor.current); // DEBUG
+
     editor.update();
     
     console.log("✅ Checkbox créée et sauvegardée !"); 
