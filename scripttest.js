@@ -507,7 +507,8 @@ function addTask(taskName, urgency, taskId = null, savedContent = "", savedMode 
     const deleteDivTask = document.createElement("span")
     deleteDivTask.textContent = "✖"    
     deleteDivTask.classList.add("delete");
-    deleteDivTask.addEventListener("click", () => {
+    deleteDivTask.addEventListener("click", (e) => {
+        e.stopPropagation();
         DeleteTask(li, div)
     })
 
@@ -605,9 +606,13 @@ function addTask(taskName, urgency, taskId = null, savedContent = "", savedMode 
 function DeleteTask(taskElement, blockElement) {
     const taskId = taskElement.dataset.id;
     
+        if (editor.current && editor.current.dataset.id === taskId) {
+            editorWrapper.style.display = "none"
+            editor.clear()
+        }
+    
     // 🔹 Supprimer du localStorage
     deleteTaskData(taskId);
-
     taskElement.remove()
     blockElement.remove()
 }
