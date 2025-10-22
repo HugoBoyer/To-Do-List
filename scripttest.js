@@ -44,6 +44,50 @@ function deleteTaskData(taskId) {
     saveTasks(filtered);
 }
 
+// utilitaire pour attacher les événements à UN seul label
+attachEventsToCheckbox = (label) => {
+    const checkbox = label.querySelector('input[type="checkbox"]');
+    const deleteSpan = label.querySelector('span:first-child');
+    const editableSpan = label.querySelector('.editableTextSpan')
+
+    if(!checkbox || !deleteSpan || !editableSpan) return
+        
+    editableSpan.setAttribute("contenteditable", "true")
+
+    const newDeleteSpan = deleteSpan.cloneNode(true);
+    deleteSpan.replaceWith(newDeleteSpan);
+    newDeleteSpan.addEventListener('click', () => {
+        label.remove();
+        editor.update();
+    });
+
+    // 2. Événement d'édition
+    const newEditableSpan = editableSpan.cloneNode(true);
+    editableSpan.replaceWith(newEditableSpan);
+    newEditableSpan.addEventListener("input", () => {
+        editor.update();
+    });
+    
+    // 3. Événement de changement d'état (checked/unchecked)
+    const newCheckbox = checkbox.cloneNode(true);
+    checkbox.replaceWith(newCheckbox);
+    newCheckbox.addEventListener("change", () => {
+        if (newCheckbox.checked === true) {
+            taskFinish.appendChild(label);
+        } else {
+            editor.element.appendChild(label);
+        }
+        editor.update();
+    });
+
+    // 💡 Bonus : Gérer l'état checked initial au chargement
+    if (newCheckbox.checked || newCheckbox.hasAttribute('checked')) {
+         newCheckbox.setAttribute('checked', 'checked');
+    } else {
+        newCheckbox.removeAttribute('checked');
+    }
+}
+
 // Réattacher les événements aux checkboxes chargées
 reattachCheckboxEvents = () => {
      // Gérer les checkboxes dans l'éditeur ET dans taskFinish
@@ -53,44 +97,7 @@ reattachCheckboxEvents = () => {
     ]
 
     Alllabels.forEach(label => {
-        const checkbox = label.querySelector('input[type="checkbox"]');
-        const deleteSpan = label.querySelector('span:first-child');
-        const editableSpan = label.querySelector('.editableTextSpan')
-
-        if(checkbox && deleteSpan && editableSpan) {
-
-            const wasChecked = checkbox.checked || checkbox.hasAttribute('checked');
-
-            const newCheckbox = checkbox.cloneNode(true);
-            const newDeleteSpan = deleteSpan.cloneNode(true)
-            const newEditableSpan = editableSpan.cloneNode(true)
-
-             if (wasChecked) {
-                newCheckbox.checked = true;
-                newCheckbox.setAttribute('checked', 'checked');
-            }
-
-            checkbox.replaceWith(newCheckbox)
-            deleteSpan.replaceWith(newDeleteSpan)
-            editableSpan.replaceWith(newEditableSpan)
-
-            newDeleteSpan.addEventListener('click', () => {
-                label.remove()
-                editor.update();
-            })
-            newEditableSpan.addEventListener("input", () => {
-                editor.update()
-            })
-            newCheckbox.addEventListener("change", () => {
-                if(newCheckbox.checked === true) {
-                    taskFinish.appendChild(label);
-                } else {
-                    editor.element.appendChild(label);
-                }
-                editor.update()
-            })
-            console.log(" Evenement attacher, checked =", newCheckbox.checked)
-        }
+        attachEventsToCheckbox(label)
     })
 }
 // =========================
@@ -251,7 +258,6 @@ editorTitle.setAttribute("contenteditable", "true");
 editorTitle.textContent = "Titre de la note";
 
 editorHeader.appendChild(editorTitle);
-editorFooter.appendChild(taskFinish)
 editorWrapper.appendChild(editorHeader);
 
 
@@ -361,9 +367,13 @@ function switchCheckbox() {
 
     addCheckboxButton();
 
+    if (!editorFooter.contains(taskFinish)) {
+        editorFooter.appendChild(taskFinish)
+    }
+
+
     const hasCheckboxes = editor.element.querySelector('input[type="checkbox"]');
-    const hasContent = editor.element.innerHTML.trim() !== "" && 
-                       editor.element.innerHTML.trim() !== '<button id="addCheckbox" class="addCheckboxBtn">➕</button>';
+    const hasContent = editor.element.innerHTML.trim() !== "";
     
     if (!hasCheckboxes && !hasContent) {
         addCheckboxStep(editor.element);
@@ -404,7 +414,7 @@ function addCheckboxStep(editorContainer) {
     const deleteSpan = document.createElement("span")
     
     deleteSpan.textContent = "X"
-    deleteSpan.addEventListener('click', () => {
+    /*deleteSpan.addEventListener('click', () => {
         console.log("🟡 Delete cliqué"); // DEBUG
         label.remove()
         editor.update();
@@ -415,6 +425,7 @@ function addCheckboxStep(editorContainer) {
         editor.update();
     });
 
+
     checkbox.addEventListener("change", () => { 
         console.log("🟣 Checkbox changée"); // DEBUG
         if(checkbox.checked === true) {
@@ -423,18 +434,20 @@ function addCheckboxStep(editorContainer) {
             editorContainer.appendChild(label);
         }
         editor.update();
-    })
+    })*/
 
-    label.appendChild(deleteSpan)
-    label.appendChild(checkbox);
-    label.appendChild(editableTextSpan);
+   
+   
+   label.appendChild(deleteSpan)
+   label.appendChild(checkbox);
+   label.appendChild(editableTextSpan);
+   
+   attachEventsToCheckbox(label);
 
-
-    editorContainer.appendChild(label);
+   editorContainer.appendChild(label);
 
     // 🔹 Sauvegarder immédiatement après création
     console.log("🔴 Appel de editor.update()"); // DEBUG
-    console.log("editor.current =", editor.current); // DEBUG
 
     editor.update();
     
@@ -462,7 +475,7 @@ function addCheckboxButton() {
         console.log("🔵 editor.current =", editor.current);
         addCheckboxStep(editor.element)
     })
-    editor.element.appendChild(butttonCheckbox)
+    editorFooter.appendChild(butttonCheckbox)
 }
 
 // Ajouter une tache
