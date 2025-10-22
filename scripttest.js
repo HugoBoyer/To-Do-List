@@ -163,9 +163,9 @@ const editor = {
             const btn = document.getElementById("addCheckbox");
             if (btn) btn.remove();
 
-            if (editorWrapper.contains(editorFooter)) {
+        /*    if (editorWrapper.contains(editorFooter)) {
             editorFooter.remove();
-        }
+        }*/
         }
     },
 
@@ -258,6 +258,7 @@ editorTitle.setAttribute("contenteditable", "true");
 editorTitle.textContent = "Titre de la note";
 
 editorHeader.appendChild(editorTitle);
+editorFooter.appendChild(taskFinish);
 editorWrapper.appendChild(editorHeader);
 
 
@@ -364,21 +365,28 @@ function switchCheckbox() {
         editorWrapper.appendChild(editorFooter);
     }
 
+    if (!editorFooter.contains(taskFinish)) {
+        editorFooter.appendChild(taskFinish); 
+    }
 
     addCheckboxButton();
 
-    if (!editorFooter.contains(taskFinish)) {
-        editorFooter.appendChild(taskFinish)
-    }
-
-
     const hasCheckboxes = editor.element.querySelector('input[type="checkbox"]');
-    const hasContent = editor.element.innerHTML.trim() !== "";
+
+    if (!hasCheckboxes) {
+        const rawText = editor.element.textContent.trim();
+        
+        // Si l'éditeur contenait du texte simple, on le vide
+        if (rawText !== "") {
+            editor.element.innerHTML = ""; 
+        }
+
+    }
     
-    if (!hasCheckboxes && !hasContent) {
+    // Si l'éditeur est vide après le nettoyage (ou était déjà vide)
+    if (!hasCheckboxes && editor.element.innerHTML.trim() === "") {
         addCheckboxStep(editor.element);
     }
-
     reattachCheckboxEvents();
 
     editor.update(); // ✅ Déjà là, c'est bon
@@ -392,8 +400,28 @@ function switchEditMode() {
 
     editor.element.setAttribute("contenteditable", "true");
 
-    // 🔹 NE PAS supprimer les labels ! Les laisser dans le contenu
-    // L'utilisateur pourra les modifier en mode texte s'il veut
+    if (editorFooter.contains(taskFinish)) {
+        taskFinish.remove(); 
+    }
+    if (editorWrapper.contains(editorFooter)) {
+        editorFooter.remove();
+    }
+    //  Détecter si l'éditeur contient des éléments spécifiques au mode checkbox
+    const hasCheckboxElements = editor.element.querySelector('label');
+    
+    // Si des éléments de checkbox sont présents, on vide l'éditeur.
+    if (hasCheckboxElements) {
+        // Vider l'éditeur de tout le HTML complexe (labels, inputs, etc.)
+        editor.element.innerHTML = ""; 
+        
+        // S'assurer qu'il y a un contenu vide qui permet de cliquer et de taper
+        // Cela permet de commencer à écrire immédiatement sans erreur.
+        editor.element.innerHTML = "<br>";
+    }
+    
+    // 3. Vider la zone des tâches terminées (elle n'a pas de sens en mode Edit)
+    taskFinish.innerHTML = "";
+    taskFinish.textContent = "Tâche Terminée";
 
     editor.update(); // sauvegarder le changement de mode
 }
